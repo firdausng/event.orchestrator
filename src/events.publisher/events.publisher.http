@@ -1,0 +1,25 @@
+@events.publisher_HostAddress = http://localhost:8080
+@events.prometheus_HostAddress = http://localhost:9090
+
+POST {{events.publisher_HostAddress}}/api/Publish
+Content-Type: application/json
+
+[
+  {
+    "data": {
+      "year": 2017,
+      "month": 1,
+      "day": 3,
+      "appointment": "doctor"
+    },
+    "name": "test.event",
+    "id": "1",
+    "group": "1"
+  }
+]
+
+###
+
+GET {{events.prometheus_HostAddress}}/internal/metrics
+
+###

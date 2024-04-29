@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "events.publisher", "src\events.publisher\events.publisher.csproj", "{429F4D83-3EA6-43D6-96CD-A7702772DB52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "app.core", "src\app.core\app.core.csproj", "{01AC3ECA-37D6-4BFF-B29C-B317E5DC0463}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "events.subscriber", "src\events.subscriber\events.subscriber.csproj", "{BE401F73-0F94-4B04-B525-823EC2047E43}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{429F4D83-3EA6-43D6-96CD-A7702772DB52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{429F4D83-3EA6-43D6-96CD-A7702772DB52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{429F4D83-3EA6-43D6-96CD-A7702772DB52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{429F4D83-3EA6-43D6-96CD-A7702772DB52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01AC3ECA-37D6-4BFF-B29C-B317E5DC0463}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01AC3ECA-37D6-4BFF-B29C-B317E5DC0463}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01AC3ECA-37D6-4BFF-B29C-B317E5DC0463}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01AC3ECA-37D6-4BFF-B29C-B317E5DC0463}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE401F73-0F94-4B04-B525-823EC2047E43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE401F73-0F94-4B04-B525-823EC2047E43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE401F73-0F94-4B04-B525-823EC2047E43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE401F73-0F94-4B04-B525-823EC2047E43}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
