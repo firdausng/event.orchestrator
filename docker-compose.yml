@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  publisher:
+    stdin_open: true
+    tty: true
+    image: local/publisher:latest
+    container_name: 'publisher'
+    build:
+      context: .
+      dockerfile: src/events.publisher/Dockerfile
+      
+  subscriber:
+    stdin_open: true
+    tty: true
+    image: local/subscriber:latest
+    container_name: 'subscriber'
+    build:
+      context: .
+      dockerfile: src/events.subscriber/Dockerfile

@@ -12,7 +12,7 @@
     "http": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:8081",
+      "applicationUrl": "http://localhost:8181",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -22,7 +22,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost:7048;http://localhost:8081",
+      "applicationUrl": "https://localhost:7048;http://localhost:8181",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

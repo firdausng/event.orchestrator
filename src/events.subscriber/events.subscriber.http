@@ -1,5 +1,5 @@
-@events.subscriber_HostAddress = http://localhost:8081
-@events.prometheus_HostAddress = http://localhost:9091
+@events.subscriber_HostAddress = http://localhost:8181
+@events.prometheus_HostAddress = http://localhost:9191
 
 GET {{events.prometheus_HostAddress}}/internal/metrics
 

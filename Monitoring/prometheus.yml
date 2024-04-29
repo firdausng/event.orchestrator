@@ -1,0 +1,25 @@
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - localhost:9090
+  - job_name: publisher
+    metrics_path: /internal/metrics
+    scrape_interval: 1s
+    static_configs:
+      - targets:
+          - publisher:9090
+  - job_name: subscriber
+    metrics_path: /internal/metrics
+    scrape_interval: 1s
+    static_configs:
+      - targets:
+          - publisher:9090
+
+rule_files:
+  - "alertmanager/rules.yml"
+alerting:
+  alertmanagers:
+    - scheme: http
+      static_configs:
+        - targets: ["alertmanager:9093"]

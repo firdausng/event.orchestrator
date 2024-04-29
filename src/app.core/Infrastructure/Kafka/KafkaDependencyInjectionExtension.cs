@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace app.core.Infrastructure.Kafka;
 
-public static class DependencyInjectionExtension
+public static class KafkaDependencyInjectionExtension
 {
     public static IServiceCollection AddKafkaCoreService(this IServiceCollection services, IConfiguration configuration)
     {

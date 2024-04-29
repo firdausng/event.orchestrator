@@ -1,0 +1,25 @@
+groups:
+  - name: Instances
+    rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 5m
+        labels:
+          severity: page
+        # Prometheus templates apply here in the annotation and label fields of the alert.
+        annotations:
+          description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.'
+          summary: 'Instance {{ $labels.instance }} down'
+  - name: common
+    rules:
+      # API Alerts
+      - alert: HighNumberOfThreads
+        annotations:
+          message: "High number of threads for 5 minutes for 60 seconds"
+          description: "The number of process_num_thread is more than 100 for last 5 mins in pod"
+        expr: |
+          (process_num_threads{namespace="sitecore-backbone-consumer-order-send-dev",pod=~"sitecore-backbone-consumer-order-send*"}) > 100
+        for: 5m
+        labels:
+          severity: High
+          component: subscriber

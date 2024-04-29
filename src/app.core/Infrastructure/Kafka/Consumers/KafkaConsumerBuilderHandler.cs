@@ -28,7 +28,8 @@ public class KafkaConsumerBuilderHandler<TKey,TValue>
         {
             BootstrapServers = kafkaCoreOptions.BootstrapServers,
             GroupId = kafkaConsumerOptVal.GroupId,
-            AutoOffsetReset = AutoOffsetReset.Latest
+            AutoOffsetReset = AutoOffsetReset.Latest,
+            AllowAutoCreateTopics = kafkaConsumerOptVal.AllowAutoCreateTopics
         };
         _consumer = new ConsumerBuilder<TKey,TValue>(config);
     }

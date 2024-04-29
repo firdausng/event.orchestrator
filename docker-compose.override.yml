@@ -1,6 +1,59 @@
 version: '3.4'
 
 services:
+  publisher:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    ports:
+      - "9190:9090"
+      - "8180:8080"
+    depends_on:
+      kafka-setup:
+        condition: service_completed_successfully
+      
+  subscriber:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    ports:
+      - "9191:9090"
+      - "8181:8080"
+    depends_on:
+      kafka-setup:
+        condition: service_completed_successfully
+  
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./Monitoring:/etc/prometheus
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - "GF_INSTALL_PLUGINS=grafana-piechart-panel,blackmirror1-singlestat-math-panel"
+    networks:
+      - default
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - "./Monitoring/alertmanager:/config"
+      - alertmanager-data:/data
+    command: --config.file=/config/alertmanager.yml --log.level=debug
+    
   zookeeper:
     image: confluentinc/cp-zookeeper:6.2.1
     hostname: zookeeper
@@ -17,6 +70,11 @@ services:
     container_name: broker
     depends_on:
       - zookeeper
+    healthcheck:
+      test: kafka-topics --bootstrap-server broker:29092 --list
+      interval: 30s
+      timeout: 10s
+      retries: 3
     ports:
       - "9092:9092"
       - "9101:9101"
@@ -38,7 +96,23 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
-
+    
+  kafka-setup:
+    image: "bitnami/kafka:latest"
+    hostname: kafka-setup
+    container_name: kafka-setup
+    depends_on:
+      - broker
+    command: >
+      bash -c "echo Waiting for Kafka to be ready... && \
+               sleep 20 && \
+               bash /opt/bitnami/kafka/bin/kafka-topics.sh --create --if-not-exists --bootstrap-server broker:29092 --partitions 2 --replication-factor 1 --topic abc"
+    environment:
+      # The following settings are listed here only to satisfy the image's requirements.
+      # We override the image's `command` anyways, hence this container will not start a broker.
+      KAFKA_CFG_BROKER_ID: ignored
+      KAFKA_CFG_ZOOKEEPER_CONNECT: ignored
+      
   control-center:
     image: confluentinc/cp-enterprise-control-center:6.2.1
     hostname: control-center
@@ -74,3 +148,6 @@ services:
 volumes:
   db:
     driver: local
+  grafana-data:
+  prometheus_data:
+  alertmanager-data:
