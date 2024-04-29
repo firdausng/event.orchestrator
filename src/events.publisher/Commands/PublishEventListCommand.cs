@@ -17,7 +17,7 @@ public class PublishEventListCommand
         var cloudEvent = new CloudEvent();
         cloudEvent.Id = request.Id;
         cloudEvent.Type = "test.event";
-        cloudEvent.Source = new Uri("https://test.com/api/Publish");
+        cloudEvent.Source = new Uri("/api/Publish", UriKind.Relative);
         cloudEvent.Data = request.Data;
         await _kafkaProducerService.ProduceAsync(cloudEvent, request.Group);
     }

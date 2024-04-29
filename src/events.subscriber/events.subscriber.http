@@ -1,6 +1,6 @@
-@events.subscriber_HostAddress = http://localhost:5018
+@events.subscriber_HostAddress = http://localhost:8081
+@events.prometheus_HostAddress = http://localhost:9091
 
-GET {{events.subscriber_HostAddress}}/weatherforecast/
-Accept: application/json
+GET {{events.prometheus_HostAddress}}/internal/metrics
 
 ###

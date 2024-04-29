@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddWorkers();
+builder.Services.AddWorkers(builder.Configuration);
 builder.Services.AddKafkaConsumer(builder.Configuration);
 builder.Services.AddHealthChecks();
 builder.Services.AddOpenTelemetry()
@@ -16,6 +16,8 @@ builder.Services.AddOpenTelemetry()
     {
         providerBuilder
             .AddAspNetCoreInstrumentation()
+            .AddRuntimeInstrumentation()
+            .AddHttpClientInstrumentation()
             .AddMeter("Microsoft.AspNetCore.Hosting","Microsoft.AspNetCore.Server.Kestrel")
             .AddView("http.server.request.duration",
                 new ExplicitBucketHistogramConfiguration

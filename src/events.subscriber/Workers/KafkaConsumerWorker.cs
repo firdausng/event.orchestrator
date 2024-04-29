@@ -23,6 +23,7 @@ public sealed class KafkaConsumerWorker: BackgroundService
 
     public override void Dispose()
     {
+        _logger.LogInformation("Worker is shutting down");
         _kafkaConsumerService.Dispose();
         base.Dispose();
     }
