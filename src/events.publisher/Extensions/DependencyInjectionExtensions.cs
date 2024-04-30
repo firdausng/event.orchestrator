@@ -1,9 +1,12 @@
 ﻿using app.core.Infrastructure.Kafka;
 using app.core.Infrastructure.Kafka.Options;
 using app.core.Monitoring;
+using app.core.Options;
 using events.publisher.Commands;
+using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using Prometheus;
 
 namespace events.publisher.Extensions;
 
@@ -56,8 +59,18 @@ public static class DependencyInjectionExtensions
                             ]
                         })
                     // https://github.com/open-telemetry/opentelemetry-dotnet/issues/5502
-                    .AddPrometheusExporter(o => o.DisableTotalNameSuffixForCounters = true);
+                    .AddPrometheusExporter(o => o.DisableTotalNameSuffixForCounters = true)
+                    ;
             });
         return services;
+    }
+    
+    public static IApplicationBuilder UseAppOpenTelemetryPrometheus(this IApplicationBuilder app)
+    {
+        var prometheusOptions = app.ApplicationServices.GetRequiredService<IOptions<PrometheusOptions>>().Value;
+        app.UseOpenTelemetryPrometheusScrapingEndpoint(
+            context => context.Request.Path == prometheusOptions.MetricsPath
+                       && context.Connection.LocalPort == prometheusOptions.LocalPort);
+        return app;
     }
 }

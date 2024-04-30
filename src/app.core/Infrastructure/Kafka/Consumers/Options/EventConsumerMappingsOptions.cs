@@ -14,4 +14,12 @@ public class KafkaConsumerOptions
     public static readonly string SectionName = "KafkaConsumer";
     public required string GroupId { get; set; }
     public required bool AllowAutoCreateTopics { get; set; }
+    public required bool EnableAutoCommit { get; set; }
+    
+    public void Deconstruct(out string groupId, out bool allowAutoCreateTopics, out bool enableAutoCommit)
+    {
+        groupId = GroupId;
+        allowAutoCreateTopics = AllowAutoCreateTopics;
+        enableAutoCommit = EnableAutoCommit;
+    }
 }

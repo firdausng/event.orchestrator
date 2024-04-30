@@ -5,11 +5,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddWorkers(builder.Configuration);
-builder.Services.AddKafkaConsumer(builder.Configuration);
+builder.Services.AddKafkaConsumerWorker(builder.Configuration);
 builder.Services.AddHealthChecks();
 builder.Services.AddAppOpenTelemetry(builder.Configuration);
-
 
 var app = builder.Build();
 
@@ -17,8 +15,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")
 {
 }
-
 app.UseAppOpenTelemetryPrometheus();
 app.MapHealthChecks("/healthz");
 app.MapGet("/", () =>"events.subscriber");
+
 app.Run();

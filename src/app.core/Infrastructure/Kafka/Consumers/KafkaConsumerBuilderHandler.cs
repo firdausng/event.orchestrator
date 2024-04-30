@@ -23,13 +23,14 @@ public class KafkaConsumerBuilderHandler<TKey,TValue>
         _serviceProvider = serviceProvider;
         _logger = logger;
         var kafkaCoreOptions = kafkaOptions.Value;
-        var kafkaConsumerOptVal = kafkaConsumerOptions.Value;
+        var (groupId, allowAutoCreateTopics, enableAutoCommit) = kafkaConsumerOptions.Value;
         var config = new ConsumerConfig
         {
             BootstrapServers = kafkaCoreOptions.BootstrapServers,
-            GroupId = kafkaConsumerOptVal.GroupId,
+            GroupId = groupId,
             AutoOffsetReset = AutoOffsetReset.Latest,
-            AllowAutoCreateTopics = kafkaConsumerOptVal.AllowAutoCreateTopics
+            AllowAutoCreateTopics = allowAutoCreateTopics,
+            EnableAutoCommit = enableAutoCommit
         };
         _consumer = new ConsumerBuilder<TKey,TValue>(config);
     }

@@ -1,7 +1,5 @@
 using app.core.Monitoring;
 using events.publisher.Extensions;
-using OpenTelemetry.Metrics;
-using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +14,7 @@ builder.Services.AddAppOpenTelemetry(builder.Configuration);
 
 var app = builder.Build();
 
+app.UseAppOpenTelemetryPrometheus();
 app.MapHealthChecks("/healthz");
 if (app.Environment.IsDevelopment())
 {
@@ -23,7 +22,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseAppOpenTelemetryPrometheus();
-
 app.MapControllers();
+
+
 app.Run();

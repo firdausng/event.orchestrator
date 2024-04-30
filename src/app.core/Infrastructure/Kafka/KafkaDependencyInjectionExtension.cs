@@ -40,7 +40,7 @@ public static class KafkaDependencyInjectionExtension
         
         services.AddOptions<EventConsumerMappingsOptions>().Bind(configuration.GetSection(EventConsumerMappingsOptions.SectionName));
         services.AddOptions<KafkaConsumerOptions>().Bind(configuration.GetSection(KafkaConsumerOptions.SectionName));
-        services.AddSingleton(typeof(IKafkaConsumerService), typeof(KafkaConsumerService));
+        services.AddHostedService<KafkaConsumerWorker>();
         services.AddSingleton(typeof(KafkaConsumerBuilderHandler<,>));
         services.AddSingleton(typeof(KafkaConsumerChannel<,>));
         return services;

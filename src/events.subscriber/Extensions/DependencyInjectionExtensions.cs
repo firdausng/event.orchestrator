@@ -4,33 +4,22 @@ using app.core.Monitoring;
 using app.core.Options;
 using events.subscriber.Options;
 using events.subscriber.Services;
-using events.subscriber.Workers;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
+using Prometheus;
 
 namespace events.subscriber.Extensions;
 
 public static class DependencyInjectionExtensions
 {
-    public static IServiceCollection AddWorkers(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddHostedService<KafkaConsumerWorker>();
-        services.AddOptions<CloudEventHandlerOptions>().Bind(configuration.GetSection(CloudEventHandlerOptions.SectionName));
-        services.AddSingleton<ICloudEventConsumerHandler, CloudEventConsumerHandler>();
-        services.AddHttpClient();
-        // services.AddHostedService<TestConsumerWorker>();
-        return services;
-    }
-    
-    public static IServiceCollection AddKafkaConsumer(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddKafkaConsumerWorker(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddKafkaConsumerService(configuration);
 
-        
-        // services
-        //     .AddHealthChecksUI()
-        //     .AddInMemoryStorage();
+        services.AddOptions<CloudEventHandlerOptions>().Bind(configuration.GetSection(CloudEventHandlerOptions.SectionName));
+        services.AddSingleton<ICloudEventConsumerHandler, CloudEventConsumerHandler>();
+        services.AddHttpClient();
         return services;
     }
     
@@ -57,8 +46,32 @@ public static class DependencyInjectionExtensions
                             ]
                         })
                     // https://github.com/open-telemetry/opentelemetry-dotnet/issues/5502
-                    .AddPrometheusExporter(o => o.DisableTotalNameSuffixForCounters = true);
+                    .AddPrometheusExporter(o => o.DisableTotalNameSuffixForCounters = true)
+                    ;
             });
         return services;
+    }
+    
+    public static IApplicationBuilder UseAppPrometheus(this IApplicationBuilder app)
+    {
+        var prometheusOptions = app.ApplicationServices.GetRequiredService<IOptions<PrometheusOptions>>().Value;
+        app.UseMetricServer(prometheusOptions.LocalPort,opt =>
+        {
+            opt.EnableOpenMetrics = true;
+        }, prometheusOptions.MetricsPath); 
+        app.UseHttpMetrics(); 
+        // app.UseOpenTelemetryPrometheusScrapingEndpoint(
+        //     context => context.Request.Path == prometheusOptions.MetricsPath
+        //                && context.Connection.LocalPort == prometheusOptions.LocalPort);
+        return app;
+    }
+    
+    public static IApplicationBuilder UseAppOpenTelemetryPrometheus(this IApplicationBuilder app)
+    {
+        var prometheusOptions = app.ApplicationServices.GetRequiredService<IOptions<PrometheusOptions>>().Value;
+        app.UseOpenTelemetryPrometheusScrapingEndpoint(
+            context => context.Request.Path == prometheusOptions.MetricsPath
+                       && context.Connection.LocalPort == prometheusOptions.LocalPort);
+        return app;
     }
 }

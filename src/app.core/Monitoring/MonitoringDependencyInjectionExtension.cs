@@ -14,12 +14,5 @@ public static class MonitoringDependencyInjectionExtension
         return services;
     }
     
-    public static IApplicationBuilder UseAppOpenTelemetryPrometheus(this IApplicationBuilder app)
-    {
-        var prometheusOptions = app.ApplicationServices.GetRequiredService<IOptions<PrometheusOptions>>().Value;
-        app.UseOpenTelemetryPrometheusScrapingEndpoint(
-            context => context.Request.Path == prometheusOptions.MetricsPath
-                       && context.Connection.LocalPort == prometheusOptions.LocalPort);
-        return app;
-    }
+    
 }
