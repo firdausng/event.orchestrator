@@ -4,5 +4,5 @@ namespace app.core.Infrastructure.Kafka.Producers;
 
 public interface IKafkaProducerService
 {
-    Task ProduceAsync(CloudEvent message, string? partitionKey = null);
+    Task<bool> ProduceAsync(CloudEvent message, string? partitionKey = null);
 }

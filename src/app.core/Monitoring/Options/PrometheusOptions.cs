@@ -3,6 +3,6 @@
 public class PrometheusOptions
 {
     public static readonly string SectionName = "Prometheus";
-    public string MetricsPath { get; set; }
-    public int LocalPort { get; set; }
+    public required string MetricsPath { get; set; }
+    public required int LocalPort { get; set; }
 }

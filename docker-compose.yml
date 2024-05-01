@@ -1,5 +1,3 @@
-version: '3.4'
-
 services:
   publisher:
     stdin_open: true
@@ -9,7 +7,7 @@ services:
     build:
       context: .
       dockerfile: src/events.publisher/Dockerfile
-      
+  
   subscriber:
     stdin_open: true
     tty: true

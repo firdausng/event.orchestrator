@@ -30,7 +30,9 @@ public class KafkaConsumerBuilderHandler<TKey,TValue>
             GroupId = groupId,
             AutoOffsetReset = AutoOffsetReset.Latest,
             AllowAutoCreateTopics = allowAutoCreateTopics,
-            EnableAutoCommit = enableAutoCommit
+            EnableAutoCommit = true,
+            EnableAutoOffsetStore = false,
+
         };
         _consumer = new ConsumerBuilder<TKey,TValue>(config);
     }

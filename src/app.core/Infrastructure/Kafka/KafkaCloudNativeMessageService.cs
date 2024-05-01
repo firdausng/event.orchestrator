@@ -51,12 +51,12 @@ public class KafkaCloudNativeMessageService
         if (MimeUtilities.IsCloudEventsContentType(contentType))
         {
             cloudEvent =
-                formatter.DecodeStructuredModeMessage(message.Value, new ContentType(contentType), extensionAttributes);
+                formatter.DecodeStructuredModeMessage(message.Value, new ContentType(contentType!), extensionAttributes);
         }
         else
         {
             // Binary mode
-            if (!(GetHeaderValue(message, SpecVersionKafkaHeader) is string versionId))
+            if (GetHeaderValue(message, SpecVersionKafkaHeader) is not { } versionId)
             {
                 throw new ArgumentException("Request is not a CloudEvent");
             }

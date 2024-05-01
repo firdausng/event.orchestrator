@@ -6,6 +6,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "app.core", "src\app.core\ap
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "events.subscriber", "src\events.subscriber\events.subscriber.csproj", "{BE401F73-0F94-4B04-B525-823EC2047E43}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution Files", "{95CC8312-47AA-4D6E-B671-282C2929437E}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.override.yml = docker-compose.override.yml
+		docker-compose.yml = docker-compose.yml
+		README.md = README.md
+		docker-compose.infra.yml = docker-compose.infra.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

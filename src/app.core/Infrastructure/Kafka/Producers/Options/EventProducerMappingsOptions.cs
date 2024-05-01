@@ -3,7 +3,7 @@
 public class EventProducerMappingsOptions
 {
     public static readonly string SectionName = "EventProducerMappings";
-    public Dictionary<string, EventProducerConfiguration> Configurations { get; set; }
+    public required Dictionary<string, EventProducerConfiguration> Configurations { get; set; }
 }
 
 public class EventProducerConfiguration
@@ -16,7 +16,7 @@ public class EventProducerConfiguration
 public class EventProducerGroupOptions
 {
     public static readonly string SectionName = "EventProducerGroup";
-    public EventProducerGroup[] EventProducerGroups { get; set; }
+    public required EventProducerGroup[] EventProducerGroups { get; set; }
 }
 
 public class EventProducerGroup

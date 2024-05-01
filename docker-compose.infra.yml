@@ -1,23 +1,4 @@
 services:
-  publisher:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
-    ports:
-      - "9190:9090"
-      - "8180:8080"
-    depends_on:
-      kafka-setup:
-        condition: service_completed_successfully
-      
-  subscriber:
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
-    ports:
-      - "9191:9090"
-      - "8181:8080"
-    depends_on:
-      kafka-setup:
-        condition: service_completed_successfully
   
   prometheus:
     image: prom/prometheus:latest

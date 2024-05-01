@@ -23,15 +23,16 @@ public class KafkaProducerService : IKafkaProducerService, IDisposable
         _eventProducerMappingsOptionsVal = eventProducerMappingsOptions.Value;
     }
 
-    public async Task ProduceAsync(CloudEvent message, string? partitionKey)
+    public async Task<bool> ProduceAsync(CloudEvent message, string? partitionKey)
     {
         var msg = _kafkaCloudNativeMessageService.ToKafkaMessage(message, ContentMode.Binary, new JsonEventFormatter());
-        var eventProducerConfiguration = _eventProducerMappingsOptionsVal.Configurations[message.Type];
-
+        
         if (message.Type is null)
         {
             //TODO need to handle when event name cannot be found
+            return false;
         }
+        var eventProducerConfiguration = _eventProducerMappingsOptionsVal.Configurations[message.Type];
         
         if (partitionKey is not null)
         {
@@ -39,6 +40,7 @@ public class KafkaProducerService : IKafkaProducerService, IDisposable
         }
         
         await _producer.ProduceAsync(eventProducerConfiguration.Topic, msg);
+        return true;
     }
     
     public void Dispose()

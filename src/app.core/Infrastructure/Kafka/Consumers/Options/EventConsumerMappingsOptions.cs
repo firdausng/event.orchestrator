@@ -15,7 +15,9 @@ public class KafkaConsumerOptions
     public required string GroupId { get; set; }
     public required bool AllowAutoCreateTopics { get; set; }
     public required bool EnableAutoCommit { get; set; }
-    
+    public required double SubscriberIntervalInSeconds { get; set; }
+    public required int BatchSize { get; set; }
+    public required double BatchTimeoutInSec { get; set; }
     public void Deconstruct(out string groupId, out bool allowAutoCreateTopics, out bool enableAutoCommit)
     {
         groupId = GroupId;
