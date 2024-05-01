@@ -1,0 +1,6 @@
+apiVersion: v2
+description: subscriber for kafka cloud event
+name: subscriber
+type: application
+appVersion: 0.1.0
+version: 0.1.0

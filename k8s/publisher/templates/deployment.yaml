@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: publisher
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: publisher
+  template:
+    metadata:
+      labels:
+        app: publisher
+    spec:
+      containers:
+        - image: localhost:5000/publisher:dev
+          imagePullPolicy: Always
+          name: publisher
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: prometheus
+              containerPort: 9090
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Docker
