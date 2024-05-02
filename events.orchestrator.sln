@@ -12,6 +12,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Files", "Solution 
 		docker-compose.yml = docker-compose.yml
 		README.md = README.md
 		docker-compose.infra.yml = docker-compose.infra.yml
+		k8s\publisher\.helmignore = k8s\publisher\.helmignore
+		k8s\publisher\Chart.yaml = k8s\publisher\Chart.yaml
+		k8s\publisher\templates\deployment.yaml = k8s\publisher\templates\deployment.yaml
+		k8s\publisher\templates\ingress.yaml = k8s\publisher\templates\ingress.yaml
+		k8s\publisher\templates\service.yaml = k8s\publisher\templates\service.yaml
+		k8s\publisher\values.yaml = k8s\publisher\values.yaml
+		k8s\subscriber\.helmignore = k8s\subscriber\.helmignore
+		k8s\subscriber\Chart.yaml = k8s\subscriber\Chart.yaml
+		k8s\subscriber\templates\deployment.yaml = k8s\subscriber\templates\deployment.yaml
+		k8s\subscriber\templates\ingress.yaml = k8s\subscriber\templates\ingress.yaml
+		k8s\subscriber\templates\service.yaml = k8s\subscriber\templates\service.yaml
+		k8s\subscriber\values.yaml = k8s\subscriber\values.yaml
+		k8s\subscriber-0.1.0.tgz = k8s\subscriber-0.1.0.tgz
 	EndProjectSection
 EndProject
 Global

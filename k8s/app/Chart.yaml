@@ -1,0 +1,12 @@
+apiVersion: v2
+description: event orchestrator
+name: event_orchestrator
+type: application
+appVersion: 0.1.0
+version: 0.1.0
+
+dependencies:
+  - name: publisher
+    version: 0.1.0
+  - name: subscriber
+    version: 0.1.0

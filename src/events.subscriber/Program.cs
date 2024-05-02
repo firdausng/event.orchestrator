@@ -7,7 +7,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddKafkaConsumerWorker(builder.Configuration);
 builder.Services.AddHealthChecks();
-builder.Services.AddAppOpenTelemetry(builder.Configuration);
+builder.Services.AddAppOpenTelemetry(builder.Configuration, builder.Logging);
 
 var app = builder.Build();
 

@@ -1,6 +1,8 @@
-﻿using app.core.Infrastructure.Kafka.Producers;
+﻿using System.Diagnostics;
+using app.core.Infrastructure.Kafka.Producers;
 using CloudNative.CloudEvents;
 using events.publisher.Models;
+using events.publisher.Monitoring;
 
 namespace events.publisher.Commands;
 
@@ -19,6 +21,15 @@ public class PublishEventListCommand
         cloudEvent.Type = "test.event";
         cloudEvent.Source = new Uri("/api/Publish", UriKind.Relative);
         cloudEvent.Data = request.Data;
+        
+        using var activity = DiagnosticsConfig.Source.StartActivity(DiagnosticsConfig.Source.Name, ActivityKind.Producer);
+        activity?.SetTag("request.Id", request.Id);
+        cloudEvent["traceparent"] = activity.Id;
+        cloudEvent["tracestate"] = activity.TraceStateString;
         await _kafkaProducerService.ProduceAsync(cloudEvent, request.Group);
+        
+        // instrumentation
+        var labels = new KeyValuePair<string, object?>("event", request.Id);
+        DiagnosticsConfig.PublishCount.Add(1, labels);
     }
 }

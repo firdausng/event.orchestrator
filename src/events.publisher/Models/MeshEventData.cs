@@ -5,11 +5,6 @@ namespace events.publisher.Models;
 
 public class EventData
 {
-    public EventData(Dictionary<string, JsonElement> dynamicData)
-    {
-        DynamicData = dynamicData;
-    }
-
     [JsonExtensionData]
     public Dictionary<string, JsonElement> DynamicData { get; set; }
 }

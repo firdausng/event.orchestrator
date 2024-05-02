@@ -1,5 +1,6 @@
 using app.core.Monitoring;
 using events.publisher.Extensions;
+using OpenTelemetry.Logs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,7 @@ builder.Services.AddHealthChecks()
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAppOpenTelemetry(builder.Configuration);
+builder.Services.AddAppOpenTelemetry(builder.Configuration, builder.Logging);
 
 var app = builder.Build();
 

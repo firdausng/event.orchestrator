@@ -1,10 +1,14 @@
-﻿using app.core.Infrastructure.Kafka;
+﻿using System.Diagnostics;
+using app.core.Infrastructure.Kafka;
 using app.core.Infrastructure.Kafka.Options;
 using app.core.Monitoring;
 using app.core.Options;
 using events.publisher.Commands;
+using events.publisher.Monitoring;
 using Microsoft.Extensions.Options;
+using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Prometheus;
 
@@ -37,17 +41,39 @@ public static class DependencyInjectionExtensions
         return healthChecksBuilder;
     }
     
-    public static IServiceCollection AddAppOpenTelemetry(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddAppOpenTelemetry(this IServiceCollection services, IConfiguration configuration,
+        ILoggingBuilder builderLogging)
     {
         services.AddMonitoringService(configuration);
+        
+        builderLogging.AddOpenTelemetry(opt =>
+        {
+            opt.AddOtlpExporter();
+        });
+        
         services.AddOpenTelemetry()
+            .ConfigureResource(builder =>
+            {
+                builder.AddService(DiagnosticsConfig.ServiceName)
+                    .AddAttributes(new List<KeyValuePair<string, object>>
+                    {
+                        new("app-region", "localhost")
+                    });
+            })
             .WithTracing(providerBuilder => providerBuilder
-                .AddAspNetCoreInstrumentation())
+                .AddSource(DiagnosticsConfig.ServiceName)
+                .ConfigureResource(resource => resource.AddService(DiagnosticsConfig.ServiceName))
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddOtlpExporter(opts => { opts.Endpoint = new Uri("http://localhost:4317");})
+            )
             .WithMetrics(providerBuilder =>
             {
                 providerBuilder
                     .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
                     // .AddRuntimeInstrumentation()
+                    .AddMeter(DiagnosticsConfig.Meter.Name)
                     .AddMeter("Microsoft.AspNetCore.Hosting","Microsoft.AspNetCore.Server.Kestrel")
                     .AddView("http.server.request.duration",
                         new ExplicitBucketHistogramConfiguration
