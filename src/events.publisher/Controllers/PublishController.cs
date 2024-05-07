@@ -16,7 +16,7 @@ public class PublishController: Controller
         _publishEventListCommand = publishEventListCommand;
     }
     [HttpPost("", Name = "PublishEvents")]
-    public async Task<IActionResult> Post(List<PublishEventRequest> publishEventRequests, CancellationToken cancellationToken)
+    public async Task<IActionResult> Post(List<PublishEventRequest> publishEventRequests)
     {
         Activity.Current?.SetTag("request.id", publishEventRequests.First().Id);
         await _publishEventListCommand.Handle(publishEventRequests.First());
