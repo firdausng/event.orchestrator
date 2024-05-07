@@ -50,7 +50,7 @@ public class KafkaConsumerWorker: BackgroundService
 
         Task.Run(async () =>
         {
-            await HandleEvents(stoppingToken);
+            await HandleEvents2(stoppingToken);
         }, stoppingToken);
         return Task.CompletedTask;
     }
@@ -97,26 +97,105 @@ public class KafkaConsumerWorker: BackgroundService
             throw;
         }
     }
+    
+    private async Task HandleEvents2(CancellationToken stoppingToken)
+    {
+        var buffer = new List<ConsumeResult<string?, byte[]>>();
+        var bufferLock = new SemaphoreSlim(1,1);
+        _logger.LogInformation("start processing with max batch size {BatchSize}", _kafkaConsumerOptions.BatchSize);
+
+        var count = 0;
+        _ = Task.Run(async () =>
+        {
+            var batchCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+            batchCts.CancelAfter(TimeSpan.FromSeconds(_kafkaConsumerOptions.BatchTimeoutInSec));
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                count = buffer.Count;
+                if (count < _kafkaConsumerOptions.BatchSize && !batchCts.Token.IsCancellationRequested)
+                {
+                    continue;   
+                }
+
+                try
+                {
+                    await bufferLock.WaitAsync(stoppingToken);
+                    if (buffer.Count > 0)
+                    {
+                        await HandleEventBatch(buffer);
+                        buffer.Clear();
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Error handling the batch");
+                }
+                finally
+                {
+                    batchCts.Dispose();
+                    bufferLock.Release();
+                    batchCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+                    batchCts.CancelAfter(TimeSpan.FromSeconds(_kafkaConsumerOptions.BatchTimeoutInSec));
+                }
+                
+            }
+            
+            _logger.LogInformation("handling events is stopped");
+            if (buffer.Count > 0)
+            {
+                _logger.LogInformation("buffer count ({Count}) is more than zero, start process remaining events", buffer.Count);
+                await HandleEventBatch(buffer);
+                buffer.Clear();
+                batchCts.Dispose();
+            }
+            
+        }, stoppingToken);
+        await foreach (var consumeResult in _kafkaConsumerChannel.Reader.ReadAllAsync(stoppingToken))
+        {
+            await bufferLock.WaitAsync(stoppingToken);
+            try
+            {
+                buffer.Add(consumeResult);
+            }
+            finally
+            {
+                bufferLock.Release();
+            }
+        }
+    }
 
     private async Task HandleEvents(CancellationToken stoppingToken)
     {
         var buffer = new List<ConsumeResult<string?, byte[]>>();
         var batchCts = new CancellationTokenSource(TimeSpan.FromSeconds(_kafkaConsumerOptions.BatchTimeoutInSec));
-        
+        _logger.LogInformation("start processing with max batch size {BatchSize}", _kafkaConsumerOptions.BatchSize);
         await foreach (var consumeResult in _kafkaConsumerChannel.Reader.ReadAllAsync(stoppingToken))
         {
             buffer.Add(consumeResult);
-            if (buffer.Count < _kafkaConsumerOptions.BatchSize && !batchCts.Token.IsCancellationRequested) continue;
+            _logger.LogInformation("start processing {OffsetValue} events with batch size {} and buffer count {}", 
+                consumeResult.Offset.Value, _kafkaConsumerOptions.BatchSize, buffer.Count);
+            if (buffer.Count < _kafkaConsumerOptions.BatchSize && !batchCts.Token.IsCancellationRequested)
+            {
+                _logger.LogWarning("buffer count ({Count}) still lower that max batch size ({BatchSize}) and set to {ProcessOrNot} or Timeout have not been reach {TimeoutReach}", 
+                    buffer.Count, _kafkaConsumerOptions.BatchSize, buffer.Count < _kafkaConsumerOptions.BatchSize, !batchCts.Token.IsCancellationRequested);
+                continue;
+            }
             await HandleEventBatch(buffer);
+            _logger.LogInformation("done processing {OffsetValue} events with batch size {} and buffer count {}", 
+                consumeResult.Offset.Value, _kafkaConsumerOptions.BatchSize, buffer.Count);
             buffer.Clear();
             batchCts.Dispose();
             batchCts = new CancellationTokenSource(TimeSpan.FromSeconds(_kafkaConsumerOptions.BatchTimeoutInSec));
         }
-
+        
+        
+        _logger.LogInformation("loop end");
         if (buffer.Count > 0)
         {
+            _logger.LogInformation("buffer count ({Count}) is more than zero, start process remaining events", buffer.Count);
             await HandleEventBatch(buffer);
             buffer.Clear();
+            batchCts.Dispose();
         }
     }
 
@@ -128,10 +207,13 @@ public class KafkaConsumerWorker: BackgroundService
                     .ToCloudEvent(consumeResult.Message, new JsonEventFormatter(), null))
             .Select(cloudEvent => _eventConsumerHandler.HandleAsync(cloudEvent))
             .ToList();
-
         await Task.WhenAll(tasks);
-        _logger.LogInformation("Done processing {Count} events", tasks.Count());
-        _consumer.StoreOffset(batch.Last());
+        var lastOffset = batch.Last();
+        var allOffset = batch.Select(o => o.Offset.Value);
+        var allOffsetStr = string.Join(',', allOffset);
+        _logger.LogInformation("Done processing {Count} events, storing offset at {Offset}, the list of offset are {AllOffsetStr}", 
+            tasks.Count, lastOffset.Offset.Value, allOffsetStr);
+        _consumer.StoreOffset(lastOffset);
     }
 
     /// <inheritdoc />

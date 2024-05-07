@@ -20,6 +20,6 @@ public class PublishController: Controller
     {
         Activity.Current?.SetTag("request.id", publishEventRequests.First().Id);
         await _publishEventListCommand.Handle(publishEventRequests.First());
-        return Ok();
+        return Ok(publishEventRequests);
     }
 }

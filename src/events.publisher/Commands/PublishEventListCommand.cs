@@ -26,7 +26,7 @@ public class PublishEventListCommand
         activity?.SetTag("request.Id", request.Id);
         cloudEvent["traceparent"] = activity.Id;
         cloudEvent["tracestate"] = activity.TraceStateString;
-        await _kafkaProducerService.ProduceAsync(cloudEvent, request.Group);
+        var result = await _kafkaProducerService.ProduceAsync(cloudEvent, request.Group);
         
         // instrumentation
         var labels = new KeyValuePair<string, object?>("event", request.Id);
