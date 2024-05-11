@@ -1,10 +1,19 @@
 services:
-  jaeger:
-    image: jaegertracing/opentelemetry-all-in-one:latest
+  
+  aspire-dashboard:
+    image: mcr.microsoft.com/dotnet/nightly/aspire-dashboard:8.0.0-preview.4
     ports:
-      - "13133:13133"
-      - "16686:16686"
-      - "4317:4317"
+      - "18888:18888"
+      - "4317:18889"
+    restart: always
+    container_name: aspire-dashboard
+    
+#  jaeger:
+#    image: jaegertracing/opentelemetry-all-in-one:latest
+#    ports:
+#      - "13133:13133"
+#      - "16686:16686"
+#      - "4317:4317"
 
   prometheus:
     image: prom/prometheus:latest
@@ -130,6 +139,7 @@ services:
     restart: always
     ports:
       - 8089:8080
+        
 volumes:
   db:
     driver: local

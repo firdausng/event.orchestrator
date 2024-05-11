@@ -57,10 +57,10 @@ public static class DependencyInjectionExtensions
             {
                 providerBuilder
                     .AddAspNetCoreInstrumentation()
-                    // .AddRuntimeInstrumentation()
+                    .AddRuntimeInstrumentation()
                     .AddMeter(DiagnosticsConfig.Meter.Name)
                     .AddHttpClientInstrumentation()
-                    .AddMeter("Microsoft.AspNetCore.Hosting","Microsoft.AspNetCore.Server.Kestrel")
+                    .AddMeter("Microsoft.AspNetCore.Hosting","Microsoft.AspNetCore.Server.Kestrel", "System.Net.Http", "events.publisher")
                     .AddView("http.server.request.duration",
                         new ExplicitBucketHistogramConfiguration
                         {
@@ -72,8 +72,12 @@ public static class DependencyInjectionExtensions
                         })
                     // https://github.com/open-telemetry/opentelemetry-dotnet/issues/5502
                     .AddPrometheusExporter(o => o.DisableTotalNameSuffixForCounters = true)
+                    .AddOtlpExporter(opts => { opts.Endpoint = new Uri("http://localhost:4317"); })
                     ;
             });
+        
+        // services.ConfigureOpenTelemetryTracerProvider(metrics => metrics.AddOtlpExporter());
+        // services.ConfigureOpenTelemetryMeterProvider(metrics => metrics.AddOtlpExporter());
         return services;
     }
     
@@ -85,9 +89,7 @@ public static class DependencyInjectionExtensions
             opt.EnableOpenMetrics = true;
         }, prometheusOptions.MetricsPath); 
         app.UseHttpMetrics(); 
-        // app.UseOpenTelemetryPrometheusScrapingEndpoint(
-        //     context => context.Request.Path == prometheusOptions.MetricsPath
-        //                && context.Connection.LocalPort == prometheusOptions.LocalPort);
+
         return app;
     }
     
@@ -97,6 +99,11 @@ public static class DependencyInjectionExtensions
         app.UseOpenTelemetryPrometheusScrapingEndpoint(
             context => context.Request.Path == prometheusOptions.MetricsPath
                        && context.Connection.LocalPort == prometheusOptions.LocalPort);
+        
+        // this is just workaround because i cant find how to change the aspire dashboard MetricsPath and Port
+        // TODO remove this once got answered from
+        // https://github.com/dotnet/aspire/discussions/4135
+        // app.UseOpenTelemetryPrometheusScrapingEndpoint();
         return app;
     }
 }

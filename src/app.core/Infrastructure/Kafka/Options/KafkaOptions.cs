@@ -1,5 +1,3 @@
-using Confluent.Kafka;
-
 namespace app.core.Infrastructure.Kafka.Options;
 
 public class KafkaOptions

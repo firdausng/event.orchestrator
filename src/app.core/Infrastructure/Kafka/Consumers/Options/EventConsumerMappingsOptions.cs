@@ -1,6 +1,4 @@
-﻿using app.core.Infrastructure.Kafka.Options;
-
-namespace app.core.Infrastructure.Kafka.Consumers.Options;
+﻿namespace app.core.Infrastructure.Kafka.Consumers.Options;
 
 public class EventConsumerMappingsOptions
 {

@@ -1,4 +1,3 @@
-using app.core.Monitoring;
 using events.subscriber.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);

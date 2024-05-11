@@ -1,29 +1,44 @@
-﻿using System.Net.Quic;
-using app.core.Infrastructure.Kafka;
+﻿using app.core.Infrastructure.Kafka;
 using app.core.Infrastructure.Kafka.Options;
 using app.core.Monitoring;
 using app.core.Options;
-using events.publisher.Commands;
-using events.publisher.Monitoring;
+using events.management.Commands;
+using events.management.Data;
+using events.management.Monitoring;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
-namespace events.publisher.Extensions;
+namespace events.management.Extensions;
 
 public static class DependencyInjectionExtensions
 {
     public static IServiceCollection AddHandlers(this IServiceCollection services)
     {
-        services.AddSingleton<PublishEventListCommand>();
+        services.AddTransient<CreateEventConfigurationCommand>();
         return services;
     }
     
-    public static IServiceCollection AddKafkaProducer(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddKafkaProducerService(configuration);
+        var migrationsAssembly = typeof(DependencyInjectionExtensions).Assembly.GetName().Name;
+
+        services.AddDbContext<EventsManagementDbContext>(cfg =>
+        {
+            cfg
+                .UseNpgsql(configuration.GetConnectionString("AppConnectionString"),
+                    options =>
+                    {
+                        options.EnableRetryOnFailure(3);
+                        options.MigrationsAssembly(migrationsAssembly);
+                    })
+                .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information)
+                //.EnableSensitiveDataLogging()
+                ;
+        });
         return services;
     }
 
@@ -50,7 +65,6 @@ public static class DependencyInjectionExtensions
             opt.AddOtlpExporter();
         });
         
-        
         services.AddOpenTelemetry()
             .ConfigureResource(builder =>
             {
@@ -65,6 +79,7 @@ public static class DependencyInjectionExtensions
                 .ConfigureResource(resource => resource.AddService(DiagnosticsConfig.ServiceName))
                 .AddAspNetCoreInstrumentation()
                 .AddHttpClientInstrumentation()
+                .AddEntityFrameworkCoreInstrumentation()
                 .AddOtlpExporter(opts => { opts.Endpoint = new Uri("http://localhost:4317");})
             )
             .WithMetrics(providerBuilder =>
@@ -74,7 +89,7 @@ public static class DependencyInjectionExtensions
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation()
                     .AddMeter(DiagnosticsConfig.Meter.Name)
-                    .AddMeter("Microsoft.AspNetCore.Hosting","Microsoft.AspNetCore.Server.Kestrel", "System.Net.Http", "events.publisher")
+                    .AddMeter("Microsoft.AspNetCore.Hosting","Microsoft.AspNetCore.Server.Kestrel")
                     .AddView("http.server.request.duration",
                         new ExplicitBucketHistogramConfiguration
                         {
@@ -85,18 +100,9 @@ public static class DependencyInjectionExtensions
                             ]
                         })
                     // https://github.com/open-telemetry/opentelemetry-dotnet/issues/5502
-                    .AddPrometheusExporter(opts =>
-                    {
-                        opts.DisableTotalNameSuffixForCounters = true;
-                    })
-                    .AddOtlpExporter(opts =>
-                    {
-                        opts.Endpoint = new Uri("http://localhost:4317");
-                        
-                    })
+                    .AddPrometheusExporter(o => o.DisableTotalNameSuffixForCounters = true)
                     ;
             });
-
         return services;
     }
     
@@ -104,16 +110,8 @@ public static class DependencyInjectionExtensions
     {
         var prometheusOptions = app.ApplicationServices.GetRequiredService<IOptions<PrometheusOptions>>().Value;
         app.UseOpenTelemetryPrometheusScrapingEndpoint(
-            context =>
-            {
-                return context.Request.Path == prometheusOptions.MetricsPath
-                       && context.Connection.LocalPort == prometheusOptions.LocalPort;
-            });
-        
-        // this is just workaround because i cant find how to change the aspire dashboard MetricsPath and Port
-        // TODO remove this once got answered from
-        // https://github.com/dotnet/aspire/discussions/4135
-        // app.UseOpenTelemetryPrometheusScrapingEndpoint();
+            context => context.Request.Path == prometheusOptions.MetricsPath
+                       && context.Connection.LocalPort == prometheusOptions.LocalPort);
         return app;
     }
 }
