@@ -38,6 +38,7 @@ public class OutboxWorker: BackgroundService
             }
         
             // Wait before checking for unprocessed messages again
+            // TODO: make this configurable, 10 second is only for development, production should be lower
             await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
         }
     }
