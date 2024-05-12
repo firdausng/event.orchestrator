@@ -100,7 +100,8 @@ services:
     command: >
       bash -c "echo Waiting for Kafka to be ready... && \
                sleep 20 && \
-               bash /opt/bitnami/kafka/bin/kafka-topics.sh --create --if-not-exists --bootstrap-server broker:29092 --partitions 2 --replication-factor 1 --topic abc"
+               bash /opt/bitnami/kafka/bin/kafka-topics.sh --create --if-not-exists --bootstrap-server broker:29092 --partitions 2 --replication-factor 1 --topic abc && \
+               bash /opt/bitnami/kafka/bin/kafka-topics.sh --create --if-not-exists --bootstrap-server broker:29092 --partitions 2 --replication-factor 1 --topic configuration "
     environment:
       # The following settings are listed here only to satisfy the image's requirements.
       # We override the image's `command` anyways, hence this container will not start a broker.

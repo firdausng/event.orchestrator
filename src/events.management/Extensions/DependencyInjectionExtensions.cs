@@ -1,5 +1,4 @@
-﻿using app.core.Infrastructure.Kafka;
-using app.core.Infrastructure.Kafka.Options;
+﻿using app.core.Infrastructure.Kafka.Options;
 using app.core.Monitoring;
 using app.core.Options;
 using events.management.Commands;
@@ -35,7 +34,7 @@ public static class DependencyInjectionExtensions
                         options.EnableRetryOnFailure(3);
                         options.MigrationsAssembly(migrationsAssembly);
                     })
-                .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information)
+                .LogTo(Console.WriteLine, LogLevel.Information)
                 //.EnableSensitiveDataLogging()
                 ;
         });
@@ -101,6 +100,11 @@ public static class DependencyInjectionExtensions
                         })
                     // https://github.com/open-telemetry/opentelemetry-dotnet/issues/5502
                     .AddPrometheusExporter(o => o.DisableTotalNameSuffixForCounters = true)
+                    .AddOtlpExporter(opts =>
+                    {
+                        opts.Endpoint = new Uri("http://localhost:4317");
+                        
+                    })
                     ;
             });
         return services;

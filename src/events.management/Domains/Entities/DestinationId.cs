@@ -1,3 +1,3 @@
 namespace events.management.Domains.Entities;
 
-public record DestinationId(Guid Value);
+public readonly record struct DestinationId(Guid Value);

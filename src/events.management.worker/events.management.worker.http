@@ -1,0 +1,6 @@
+@events.management.worker_HostAddress = http://localhost:5247
+
+GET {{events.management.worker_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

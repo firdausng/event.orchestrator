@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using events.management.core.Domains.Entities;
 using events.management.Domains.Entities;
-using Microsoft.EntityFrameworkCore;
+using events.management.Monitoring;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
@@ -20,13 +21,20 @@ public class OutboxInterceptor : SaveChangesInterceptor
                 .Entries<Entity>()
                 .Select(entry => entry)
                 .SelectMany(entity => new List<EntityEntry<Entity>> {entity})
-                .Select(d => new OutboxMessage
+                .Select(d =>
                 {
-                    Content = d.Entity.Serialize(),
-                    CreatedAt = DateTime.UtcNow,
-                    Published = false,
-                    EntryState = d.State.ToString(),
-                    ClrType = d.Metadata.ClrType.FullName
+                    using var activity = DiagnosticsConfig.Source.StartActivity(DiagnosticsConfig.Source.Name, ActivityKind.Producer);
+                    
+                    return new OutboxMessage
+                    {
+                        Content = d.Entity.Serialize(),
+                        CreatedAt = DateTime.UtcNow,
+                        Published = false,
+                        EntryState = d.State.ToString(),
+                        ClrType = d.Metadata.ClrType.FullName,
+                        TraceParent = activity?.Id,
+                        TraceState = activity?.TraceStateString
+                    };
                 })
                 .ToList();
 

@@ -1,4 +1,5 @@
-﻿using events.management.Data.Interceptors;
+﻿using events.management.core.Domains.Entities;
+using events.management.Data.Interceptors;
 using events.management.Domains.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,9 +7,9 @@ namespace events.management.Data;
 
 public class EventsManagementDbContext: DbContext
 {
-    public DbSet<EventConfiguration> EventConfigurations { get; set; }
-    public DbSet<Destination> Destinations { get; set; }
-    public DbSet<OutboxMessage> OutboxMessages { get; set; }
+    public DbSet<EventConfiguration> EventConfigurations => Set<EventConfiguration>();
+    public DbSet<Destination> Destinations => Set<Destination>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public EventsManagementDbContext(DbContextOptions<EventsManagementDbContext> options) : base(options)
     {
 

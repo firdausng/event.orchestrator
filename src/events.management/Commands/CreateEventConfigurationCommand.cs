@@ -1,10 +1,6 @@
-﻿using System.Diagnostics;
-using app.core.Infrastructure.Kafka.Producers;
-using CloudNative.CloudEvents;
-using events.management.Data;
+﻿using events.management.Data;
 using events.management.Domains.Entities;
 using events.management.Models;
-using events.management.Monitoring;
 
 namespace events.management.Commands;
 

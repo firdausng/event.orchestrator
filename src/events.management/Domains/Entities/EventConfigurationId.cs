@@ -1,3 +1,3 @@
 namespace events.management.Domains.Entities;
 
-public record EventConfigurationId(Guid Value);
+public readonly record struct EventConfigurationId(Guid Value);

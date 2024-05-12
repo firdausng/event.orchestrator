@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using events.management.Data;
@@ -11,9 +12,11 @@ using events.management.Data;
 namespace events.management.Migrations
 {
     [DbContext(typeof(EventsManagementDbContext))]
-    partial class EventsManagementDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240511193002_update record")]
+    partial class updaterecord
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -64,7 +67,7 @@ namespace events.management.Migrations
                     b.ToTable("EventConfigurations");
                 });
 
-            modelBuilder.Entity("events.management.core.Domains.Entities.OutboxMessage", b =>
+            modelBuilder.Entity("events.management.Domains.Entities.OutboxMessage", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -88,12 +91,6 @@ namespace events.management.Migrations
 
                     b.Property<bool>("Published")
                         .HasColumnType("boolean");
-
-                    b.Property<string>("TraceParent")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TraceState")
-                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

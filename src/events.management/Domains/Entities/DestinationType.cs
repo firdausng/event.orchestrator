@@ -1,3 +1,3 @@
 namespace events.management.Domains.Entities;
 
-public record DestinationType(string Value);
+public readonly record struct DestinationType(string Value);
