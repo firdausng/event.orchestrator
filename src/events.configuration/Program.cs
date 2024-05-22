@@ -1,10 +1,10 @@
-using events.management.worker.Extensions;
+using events.configuration.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddHandlers();
-builder.Services.AddKafkaProducer(builder.Configuration);
 builder.Services.AddDatabase(builder.Configuration);
+builder.Services.AddControllers();
 builder.Services.AddHealthChecks()
     .AddAppHealthChecks(builder.Configuration);
 builder.Services.AddControllers();
@@ -22,8 +22,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.MapGet("/", () =>"events.management.worker")
-    .WithName("Index")
-    .WithOpenApi();
+app.MapControllers();
 
 app.Run();

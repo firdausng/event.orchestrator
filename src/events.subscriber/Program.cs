@@ -2,6 +2,7 @@ using events.subscriber.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddKafkaConsumerWorker(builder.Configuration);

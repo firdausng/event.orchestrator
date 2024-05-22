@@ -1,4 +1,5 @@
 using System.Text.Json;
+using events.management.Domains.Interfaces;
 
 namespace events.management.Domains.Entities;
 
@@ -20,6 +21,7 @@ public class EventConfiguration : AggregateRoot
     public static EventConfiguration Create(string eventName, Destination destination)
     {
         var dest = new EventConfiguration(new EventConfigurationId(Guid.NewGuid()), eventName, destination);
+        
         return dest;
     }
 
@@ -27,4 +29,9 @@ public class EventConfiguration : AggregateRoot
     {
         return JsonSerializer.Serialize(this);
     }
+}
+
+public class EventConfigurationCreated(EventConfiguration eventConfiguration) : IDomainEvent
+{
+    public EventConfiguration EventConfiguration { get; private set; } = eventConfiguration;
 }

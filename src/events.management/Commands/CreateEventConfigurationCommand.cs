@@ -36,6 +36,7 @@ public class CreateEventConfigurationCommand
             );
         
         _dbContext.EventConfigurations.Add(entity);
+        entity.RaiseDomainEvent(new EventConfigurationCreated(entity));
         await _dbContext.SaveChangesAsync();
     }
 }
