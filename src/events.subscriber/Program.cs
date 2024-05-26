@@ -9,6 +9,14 @@ builder.Services.AddKafkaConsumerWorker(builder.Configuration);
 builder.Services.AddHealthChecks();
 builder.Services.AddAppOpenTelemetry(builder.Configuration, builder.Logging);
 
+builder.Services.ConfigureHttpClientDefaults(b =>
+{
+    b.AddStandardResilienceHandler();
+    b.RedactLoggedHeaders(["Authorization"]);
+    
+});
+builder.Services.AddRedaction();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
